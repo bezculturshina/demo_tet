@@ -20,7 +20,7 @@
             const regForm = ref({ firstName: '', secondName: '', login: '', password: '' });
 
             // Реактивная форма для создания новой книги сотрудником
-//            const newBookForm = ref({ name: '', author: '', genre: '', pages: 200, published: 2026, price: 500, number: 10 });
+            const newBookForm = ref({ name: '', author: '', genre: '', pages: '', published: '', price: '', number: '' });
 
             const formatDate = (dateValue) => {
                 if (!dateValue) return new Date().toLocaleDateString('ru-RU');
@@ -214,12 +214,12 @@
             return {
                 books, orders, myOrders, currentYear, currentTab, cart,
                 showAuthForms, currentUser, authMessage, authError,
-                loginForm, regForm, newBookForm, logout,
+                loginForm, regForm, logout,
                 addToCart, removeFromCart, getCountInCart, groupedCart, cartTotal,
                 handleCheckout, checkoutStatus, currentUserCartLength,
                 goToEmployeeOrders, goToEmployeeBooks, goToMyOrders, handleCompleteOrder,
                 handleCreateBook, handleDeleteBook, formatDate,
-                handleLogin, handleRegister
+                handleLogin, handleRegister, newBookForm
             };
         }
     }).mount('#app');

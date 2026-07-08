@@ -225,7 +225,7 @@
         </table>
     </div>
 
-    <div v-if="currentTab === 'employee_books' && (currentUser.role === 'EMPLOYEE' || currentUser.role === 'ADMIN')">
+    <div v-if="currentTab === 'employee_books' && (currentUser.role === 'EMPLOYEE')">
         <h1>Управление каталогом книг</h1>
 
         <div class="form-container">
@@ -240,7 +240,7 @@
             <button class="btn-order" style="background-color: #007bff; font-size: 14px; padding: 8px 20px;" @click="handleCreateBook">Сохранить книгу</button>
         </div>
 
-        <h3>Текущий ассортимент в БД</h3>
+        <h3>Текущий ассортимент</h3>
         <table>
             <thead>
             <tr>
