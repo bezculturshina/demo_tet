@@ -1,0 +1,41 @@
+        body { font-family: Arial, sans-serif; margin: 20px; background-color: #fdfdfd; }
+        header { margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; background: #f4f4f4; padding: 12px 20px; border-radius: 5px; border: 1px solid #e0e0e0; }
+        .user-info { display: flex; flex-direction: column; align-items: flex-end; font-size: 14px; }
+        .user-name { font-weight: bold; color: #333; margin-top: 5px; }
+        .nav-tabs { margin-bottom: 20px; }
+        .nav-tabs button { padding: 10px 20px; margin-right: 5px; cursor: pointer; border: 1px solid #ccc; background: #fff; font-weight: bold; border-radius: 4px 4px 0 0; }
+        .nav-tabs button.active { background: #007bff; color: white; border-color: #007bff; }
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        th, td { border: 1px solid #ccc; padding: 10px; text-align: left; }
+        th { background-color: #f4f4f4; font-weight: bold; }
+        tr:nth-child(even) { background-color: #f9f9f9; }
+
+        .col-number { width: 55px; text-align: center; }
+        .col-price { width: 75px; text-align: center; }
+        .col-pages { width: 65px; text-align: center; }
+        .col-year { width: 85px; text-align: center; }
+        .col-action { width: 120px; text-align: center; }
+
+        .badge-low { color: red; font-weight: bold; }
+        .badge-mid { color: orange; font-weight: bold; margin-left: 5px; }
+        .badge-new { color: green; font-weight: bold; margin-left: 5px; }
+
+        .auth-container, .form-container { border: 1px solid #bbb; padding: 15px; margin-bottom: 20px; background: #fafafa; display: inline-block; border-radius: 5px; }
+        .form-container { display: block; max-width: 500px; }
+        .form-group { margin-bottom: 10px; }
+        .form-group label { display: inline-block; width: 140px; font-weight: bold; }
+        .form-group input { padding: 4px; width: 300px; }
+
+        .auth-box { margin-bottom: 15px; }
+        .error-msg { color: red; font-weight: bold; }
+        .success-msg { color: green; font-weight: bold; }
+
+        .btn-cart { background-color: #28a745; color: white; border: none; padding: 6px 12px; cursor: pointer; border-radius: 3px; font-weight: bold; }
+        .btn-cart:disabled { background-color: #ccc; cursor: not-allowed; }
+        .btn-delete { background-color: #dc3545; color: white; border: none; padding: 5px 10px; cursor: pointer; border-radius: 3px; }
+        .checkout-box { margin-top: 20px; text-align: right; }
+        .btn-order { background-color: #007bff; color: white; padding: 10px 25px; font-size: 16px; border: none; cursor: pointer; border-radius: 5px; font-weight: bold; }
+        .status-notification { margin-top: 10px; font-size: 16px; font-weight: bold; }
+
+        .status-pending { color: #ffc107; font-weight: bold; }
+        .status-completed { color: #28a745; font-weight: bold; }

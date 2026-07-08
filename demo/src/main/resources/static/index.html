@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Главная - Книжный магазин</title>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+
+    <link rel="stylesheet" href="style.css">
+
+</head>
+<body>
+
+<div id="app">
+
+    <header>
+        <h2>Книжный Лабиринт</h2>
+        <div v-if="!currentUser.role">
+            <button type="button" @click="showAuthForms = !showAuthForms">Войти / Авторизация</button>
+        </div>
+        <div v-else class="user-info">
+            <span class="success-msg">Роль: <strong>{{ currentUser.role }}</strong></span>
+            <span class="user-name">{{ currentUser.firstName }} {{ currentUser.secondName }}</span>
+            <button type="button" @click="logout" style="margin-top: 8px; padding: 2px 10px;">Выйти</button>
+        </div>
+    </header>
+
+    <div v-if="showAuthForms && !currentUser.role" class="auth-container">
+        <div class="auth-box">
+            <h3>Авторизация</h3>
+            <input type="text" v-model="loginForm.login" placeholder="Логин"> &nbsp;
+            <input type="password" v-model="loginForm.password" placeholder="Пароль"> &nbsp;
+            <button @click="handleLogin">Войти</button>
+        </div>
+        <hr>
+        <div class="auth-box">
+            <h3>Регистрация</h3>
+            <input type="text" v-model="regForm.firstName" placeholder="Имя"> &nbsp;
+            <input type="text" v-model="regForm.secondName" placeholder="Фамилия"> &nbsp;
+            <input type="text" v-model="regForm.login" placeholder="Логин"> &nbsp;
+            <input type="password" v-model="regForm.password" placeholder="Пароль"> &nbsp;
+            <button @click="handleRegister">Зарегистрироваться</button>
+        </div>
+        <p v-if="authMessage" class="success-msg">{{ authMessage }}</p>
+        <p v-if="authError" class="error-msg">{{ authError }}</p>
+    </div>
+
+    <div class="nav-tabs">
+        <button :class="{ active: currentTab === 'main' }" @click="currentTab = 'main'">Главная</button>
+
+        <button v-if="currentUser.role === 'CUSTOMER'" :class="{ active: currentTab === 'cart' }" @click="currentTab = 'cart'">
+            Корзина ({{ currentUserCartLength }})
+        </button>
+        <button v-if="currentUser.role === 'CUSTOMER'" :class="{ active: currentTab === 'my_orders' }" @click="goToMyOrders">
+            Мои заказы
+        </button>
+
+        <button v-if="currentUser.role === 'EMPLOYEE' || currentUser.role === 'ADMIN'"
+                :class="{ active: currentTab === 'employee_orders' }" @click="goToEmployeeOrders">
+            Заказы (Сотрудник)
+        </button>
+        <button v-if="currentUser.role === 'EMPLOYEE' || currentUser.role === 'ADMIN'"
+                :class="{ active: currentTab === 'employee_books' }" @click="goToEmployeeBooks">
+            Книги (Сотрудник)
+        </button>
+    </div>
+
+    <div v-if="currentTab === 'main'">
+        <h1>Список всех книг</h1>
+        <p v-if="books.length === 0">Книг в магазине пока нет...</p>
+
+        <table v-else>
+            <thead>
+            <tr>
+                <th>Название</th>
+                <th>Автор</th>
+                <th>Жанр</th>
+                <th class="col-pages">Страниц</th>
+                <th class="col-year">Год издания</th>
+                <th class="col-price">Цена</th>
+                <th class="col-number">В наличии</th>
+                <th>Статус</th>
+                <th v-if="currentUser.role === 'CUSTOMER'" class="col-action">Действие</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr v-for="book in books" :key="book.id">
+                <td>{{ book.name }}</td>
+                <td>{{ book.author }}</td>
+                <td>{{ book.genre }}</td>
+                <td class="col-pages">{{ book.pages }}</td>
+                <td class="col-year">{{ book.published }}</td>
+                <td class="col-price">{{ book.price }} руб.</td>
+                <td class="col-number">{{ book.number }}</td>
+                <td>
+                    <span v-if="book.number == 0" class="badge-low">Нет в наличии</span>
+                    <span v-if="book.published === currentYear" class="badge-new">Новинка</span>
+                    <span v-if="book.published === currentYear && book.number < 6 && book.number > 0"> / </span>
+                    <span v-if="book.number < 6 && book.number !== 0" class="badge-mid">Осталось мало</span>
+                    <span v-if="book.published !== currentYear && book.number >= 6">{{ book.status }}</span>
+                </td>
+                <td v-if="currentUser.role === 'CUSTOMER'" class="col-action">
+                    <button class="btn-cart"
+                            :disabled="book.number === 0 || getCountInCart(book.id) >= book.number"
+                            @click="addToCart(book)">
+                        {{ getCountInCart(book.id) >= book.number ? 'Максимум' : 'В корзину' }}
+                    </button>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div v-if="currentTab === 'cart' && currentUser.role === 'CUSTOMER'">
+        <h1>Ваша корзина</h1>
+        <p v-if="cart.length === 0">Ваша корзина пуста.</p>
+
+        <div v-else>
+            <table>
+                <thead>
+                <tr>
+                    <th>Название</th>
+                    <th>Автор</th>
+                    <th class="col-price">Цена</th>
+                    <th class="col-number">Количество</th>
+                    <th class="col-price">Сумма</th>
+                    <th>Действие</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr v-for="item in groupedCart" :key="item.book.id">
+                    <td>{{ item.book.name }}</td>
+                    <td>{{ item.book.author }}</td>
+                    <td class="col-price">{{ item.book.price }} руб.</td>
+                    <td class="col-number"><strong>{{ item.count }} шт.</strong></td>
+                    <td class="col-price">{{ item.book.price * item.count }} руб.</td>
+                    <td>
+                        <button class="btn-delete" @click="removeFromCart(item.book.id)">Удалить (1 шт)</button>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+
+            <div class="checkout-box">
+                <h3>Итого к оплате: {{ cartTotal }} руб.</h3>
+                <button class="btn-order" @click="handleCheckout">Оформить заказ</button>
+
+                <div v-if="checkoutStatus" class="status-notification"
+                     :class="checkoutStatus.success ? 'success-msg' : 'error-msg'">
+                    {{ checkoutStatus.text }}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div v-if="currentTab === 'my_orders' && currentUser.role === 'CUSTOMER'">
+        <h1>История ваших заказов</h1>
+        <p v-if="myOrders.length === 0">Вы еще не оформляли заказов.</p>
+
+        <table v-else>
+            <thead>
+            <tr>
+                <th style="width: 140px; text-align: center;">Дата заказа</th>
+                <th>Содержимое заказа</th>
+                <th style="width: 150px; text-align: center;">Статус заказа</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr v-for="order in myOrders" :key="order.id">
+                <td style="text-align: center;">{{ formatDate(order.orderDate) }}</td>
+                <td>
+                    <ul>
+                        <li v-for="b in order.books" :key="b.id">
+                            «{{ b.name }}» — {{ b.author }} ({{ b.price }} руб.)
+                        </li>
+                    </ul>
+                </td>
+                <td style="text-align: center;">
+                    <span :class="order.status === 'COMPLETED' ? 'status-completed' : 'status-pending'">
+                        {{ order.status === 'COMPLETED' ? 'Выполнен' : 'В обработке' }}
+                    </span>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div v-if="currentTab === 'employee_orders' && (currentUser.role === 'EMPLOYEE' || currentUser.role === 'ADMIN')">
+        <h1>Управление заказами клиентов</h1>
+        <p v-if="orders.length === 0">Заказов от клиентов пока нет.</p>
+
+        <table v-else>
+            <thead>
+            <tr>
+                <th style="width: 50px;">ID</th>
+                <th style="width: 180px;">Логин покупателя</th>
+                <th>Содержимое заказа</th>
+                <th style="width: 120px; text-align: center;">Статус</th>
+                <th style="width: 140px; text-align: center;">Действие</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr v-for="order in orders" :key="order.id">
+                <td><strong>#{{ order.id }}</strong></td>
+                <td>{{ order.client ? order.client.login : 'Неизвестный клиент' }}</td>
+                <td>
+                    <ul>
+                        <li v-for="b in order.books" :key="b.id">«{{ b.name }}» — {{ b.author }} ({{ b.price }} руб.)</li>
+                    </ul>
+                </td>
+                <td style="text-align: center;">
+                    <span :class="order.status === 'COMPLETED' ? 'status-completed' : 'status-pending'">
+                        {{ order.status === 'COMPLETED' ? 'Выполнен' : 'Ожидает' }}
+                    </span>
+                </td>
+                <td style="text-align: center;">
+                    <button class="btn-order"
+                            style="padding: 5px 15px; font-size: 14px; background-color: #28a745;"
+                            :disabled="order.status === 'COMPLETED'"
+                            @click="handleCompleteOrder(order.id)">
+                        Выполнить
+                    </button>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div v-if="currentTab === 'employee_books' && (currentUser.role === 'EMPLOYEE' || currentUser.role === 'ADMIN')">
+        <h1>Управление каталогом книг</h1>
+
+        <div class="form-container">
+            <h3>Добавить новую книгу</h3>
+            <div class="form-group"><label>Название:</label><input type="text" v-model="newBookForm.name"></div>
+            <div class="form-group"><label>Автор:</label><input type="text" v-model="newBookForm.author"></div>
+            <div class="form-group"><label>Жанр:</label><input type="text" v-model="newBookForm.genre"></div>
+            <div class="form-group"><label>Страниц:</label><input type="number" v-model.number="newBookForm.pages"></div>
+            <div class="form-group"><label>Год издания:</label><input type="number" v-model.number="newBookForm.published"></div>
+            <div class="form-group"><label>Цена (руб):</label><input type="number" v-model.number="newBookForm.price"></div>
+            <div class="form-group"><label>Кол-во на складе:</label><input type="number" v-model.number="newBookForm.number"></div>
+            <button class="btn-order" style="background-color: #007bff; font-size: 14px; padding: 8px 20px;" @click="handleCreateBook">Сохранить книгу</button>
+        </div>
+
+        <h3>Текущий ассортимент в БД</h3>
+        <table>
+            <thead>
+            <tr>
+                <th>ID</th>
+                <th>Название</th>
+                <th>Автор</th>
+                <th>Цена</th>
+                <th class="col-number">Склад</th>
+                <th style="width: 100px; text-align: center;">Действие</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr v-for="book in books" :key="book.id">
+                <td>{{ book.id }}</td>
+                <td><strong>«{{ book.name }}»</strong></td>
+                <td>{{ book.author }}</td>
+                <td>{{ book.price }} руб.</td>
+                <td class="col-number">{{ book.number }}</td>
+                <td style="text-align: center;">
+                    <button class="btn-delete" @click="handleDeleteBook(book.id)">Удалить</button>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+</div>
+
+<script src="script.js"> </script>
+</body>
+</html>
