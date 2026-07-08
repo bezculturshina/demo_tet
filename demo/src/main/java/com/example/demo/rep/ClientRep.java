@@ -10,3 +10,4 @@ import java.util.Optional;
 public interface ClientRep extends JpaRepository<Clients, Long> {
     Optional<Clients> findByLogin(String login);
 }
+

@@ -19,3 +19,4 @@ INSERT INTO Book(name, author, pages, published, genre, price, number, status)
 
 INSERT INTO Book(name, author, pages, published, genre, price, number, status)
     VALUES      ('Герой нашего времени', 'Михаил Лермонтов', 317, 2024, 'приключения', 199, 6, '');
+
