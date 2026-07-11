@@ -173,4 +173,8 @@ public class Service {
     public List<Employee> getAllEmployees() {
         return employeeRepository.findByRole("ROLE_EMPLOYEE");
     }
+
+    public List<Clients> getAllClientsSorted() {
+        return clientRepository.findAllByOrderBySecondNameAsc();
+    }
 }

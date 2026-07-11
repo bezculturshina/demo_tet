@@ -55,6 +55,7 @@
 
         <template v-if="currentUser.role === 'ADMIN'">
             <button @click="currentTab = 'admin_employees'; fetchEmployees()" :class="{active: currentTab === 'admin_employees'}">Сотрудники</button>
+            <button @click="currentTab = 'admin_clients'; fetchClients()" :class="{active: currentTab === 'admin_clients'}">Клиенты</button>
         </template>
 
         <template v-if="currentUser.role === 'CUSTOMER'">
@@ -266,8 +267,6 @@
         </table>
     </div>
 
-
-
     <div v-if="currentTab === 'admin_employees' && (currentUser.role === 'ADMIN')">
         <h3>Добавить нового сотрудника</h3>
         <input v-model="newEmployeeForm.firstName" placeholder="Имя">
@@ -282,6 +281,30 @@
                 <td>{{ emp.login }}</td>
                 <td><button @click="handleDeleteEmployee(emp.id)">Уволить</button></td>
             </tr>
+        </table>
+    </div>
+
+    <div v-if="currentTab === 'admin_clients' && (currentUser.role === 'ADMIN')">
+        <h3>Список клиентов</h3>
+        <input v-model="clientFilter" placeholder="Поиск по фамилии..." @input="fetchClients">
+
+        <table>
+            <thead>
+            <tr>
+                <th>ID</th>
+                <th>Имя</th>
+                <th>Фамилия</th>
+                <th>Логин</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr v-for="client in clients" :key="client.id">
+                <td>{{ client.id }}</td>
+                <td>{{ client.firstName }}</td>
+                <td>{{ client.secondName }}</td>
+                <td>{{ client.login }}</td>
+            </tr>
+            </tbody>
         </table>
     </div>
 

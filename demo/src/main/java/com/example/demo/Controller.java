@@ -178,6 +178,16 @@ public class Controller {
         return ResponseEntity.ok(sr.getAllEmployees());
     }
 
+    @GetMapping("/rest-api/admin/clients")
+    public ResponseEntity<List<Clients>> getClients(@RequestParam(required = false) String surname) {
+        if (surname != null && !surname.isEmpty()) {
+            // Вызов метода с фильтрацией и сортировкой
+            return ResponseEntity.ok(sr.getClientRepository().findBySecondNameContainingIgnoreCaseOrderBySecondNameAsc(surname));
+        }
+        // Вызов метода только с сортировкой
+        return ResponseEntity.ok(sr.getClientRepository().findAllByOrderBySecondNameAsc());
+    }
+
     // =========================================================================
     // --- ВСПОМОГАТЕЛЬНЫЕ КЛАССЫ ---
     // =========================================================================

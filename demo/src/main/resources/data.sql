@@ -20,3 +20,25 @@ INSERT INTO Book(name, author, pages, published, genre, price, number, status)
 INSERT INTO Book(name, author, pages, published, genre, price, number, status)
     VALUES      ('Герой нашего времени', 'Михаил Лермонтов', 317, 2024, 'приключения', 199, 6, '');
 
+
+
+INSERT INTO CLIENTS (first_name, second_name, login, password) VALUES
+    ('Иван', 'Иванов', 'ivan', '$2a$10$ceObkQ96GHQrAmSb89DPCejVRGuRzIIWW8gw9ZjkP6PqT6u0dEdbO');
+
+INSERT INTO CLIENTS (first_name, second_name, login, password) VALUES
+    ('Петр', 'Петров', 'petr', '$2a$10$ceObkQ96GHQrAmSb89DPCejVRGuRzIIWW8gw9ZjkP6PqT6u0dEdbO');
+
+INSERT INTO CLIENTS (first_name, second_name, login, password) VALUES
+    ('Сергей', 'Сидоров', 'sergey', '$2a$10$ceObkQ96GHQrAmSb89DPCejVRGuRzIIWW8gw9ZjkP6PqT6u0dEdbO');
+
+INSERT INTO CLIENTS (first_name, second_name, login, password) VALUES
+    ('Анна', 'Смирнова', 'anna', '$2a$10$ceObkQ96GHQrAmSb89DPCejVRGuRzIIWW8gw9ZjkP6PqT6u0dEdbO');
+
+INSERT INTO CLIENTS (first_name, second_name, login, password) VALUES
+    ('Мария', 'Кузнецова', 'maria', '$2a$10$ceObkQ96GHQrAmSb89DPCejVRGuRzIIWW8gw9ZjkP6PqT6u0dEdbO');
+
+INSERT INTO CLIENTS (first_name, second_name, login, password) VALUES
+    ('Алексей', 'Попов', 'alexey', '$2a$10$ceObkQ96GHQrAmSb89DPCejVRGuRzIIWW8gw9ZjkP6PqT6u0dEdbO');
+
+INSERT INTO CLIENTS (first_name, second_name, login, password) VALUES
+    ('Дмитрий', 'Васильев', 'dmitry', '$2a$10$ceObkQ96GHQrAmSb89DPCejVRGuRzIIWW8gw9ZjkP6PqT6u0dEdbO');
