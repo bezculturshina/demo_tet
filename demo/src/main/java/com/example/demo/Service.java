@@ -158,6 +158,7 @@ public class Service {
     // =========================================================================
 
     public Employee addEmployee(Employee employee) {
+        // Устанавливаем роль по умолчанию
         if (employee.getRole() == null || employee.getRole().isEmpty()) {
             employee.setRole("ROLE_EMPLOYEE");
         }

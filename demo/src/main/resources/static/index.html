@@ -44,25 +44,23 @@
         <p v-if="authError" class="error-msg">{{ authError }}</p>
     </div>
 
-    <div class="nav-tabs">
-        <button :class="{ active: currentTab === 'main' }" @click="currentTab = 'main'">Главная</button>
+    <nav class="nav-tabs">
+        <button @click="currentTab = 'main'" :class="{active: currentTab === 'main'}">Главная</button>
 
-        <button v-if="currentUser.role === 'CUSTOMER'" :class="{ active: currentTab === 'cart' }" @click="currentTab = 'cart'">
-            Корзина ({{ currentUserCartLength }})
-        </button>
-        <button v-if="currentUser.role === 'CUSTOMER'" :class="{ active: currentTab === 'my_orders' }" @click="goToMyOrders">
-            Мои заказы
-        </button>
+        <template v-if="currentUser.role === 'EMPLOYEE'">
+            <button @click="goToEmployeeOrders" :class="{active: currentTab === 'employee_orders'}">Заказы</button>
+            <button @click="goToEmployeeBooks" :class="{active: currentTab === 'employee_books'}">Книги</button>
+        </template>
 
-        <button v-if="currentUser.role === 'EMPLOYEE' || currentUser.role === 'ADMIN'"
-                :class="{ active: currentTab === 'employee_orders' }" @click="goToEmployeeOrders">
-            Заказы (Сотрудник)
-        </button>
-        <button v-if="currentUser.role === 'EMPLOYEE' || currentUser.role === 'ADMIN'"
-                :class="{ active: currentTab === 'employee_books' }" @click="goToEmployeeBooks">
-            Книги (Сотрудник)
-        </button>
-    </div>
+        <template v-if="currentUser.role === 'ADMIN'">
+            <button @click="currentTab = 'admin_employees'; fetchEmployees()" :class="{active: currentTab === 'admin_employees'}">Сотрудники</button>
+        </template>
+
+        <template v-if="currentUser.role === 'CUSTOMER'">
+            <button @click="currentTab = 'cart'" :class="{ active: currentTab === 'cart' }">Корзина ({{ currentUserCartLength }})</button>
+            <button @click="goToMyOrders" :class="{active: currentTab === 'my_orders'}">Мои заказы</button>
+        </template>
+    </nav>
 
     <div v-if="currentTab === 'main'">
         <h1>Список всех книг</h1>
@@ -184,7 +182,7 @@
         </table>
     </div>
 
-    <div v-if="currentTab === 'employee_orders' && (currentUser.role === 'EMPLOYEE' || currentUser.role === 'ADMIN')">
+    <div v-if="currentTab === 'employee_orders' && (currentUser.role === 'EMPLOYEE')">
         <h1>Управление заказами клиентов</h1>
         <p v-if="orders.length === 0">Заказов от клиентов пока нет.</p>
 
@@ -266,6 +264,28 @@
             </tbody>
         </table>
     </div>
+
+
+
+    <div v-if="currentTab === 'admin_employees' && (currentUser.role === 'ADMIN')">
+<!--        <button @click="currentTab = 'admin_employees'; fetchEmployees()"-->
+<!--                :class="{active: currentTab === 'admin_employees'}">Сотрудники</button>-->
+        <h3>Добавить нового сотрудника</h3>
+        <input v-model="newEmployeeForm.firstName" placeholder="Имя">
+        <input v-model="newEmployeeForm.secondName" placeholder="Фамилия">
+        <input v-model="newEmployeeForm.login" placeholder="Логин">
+        <input type="password" v-model="newEmployeeForm.password" placeholder="Пароль">
+        <button @click="handleCreateEmployee">Нанять</button>
+
+        <table>
+            <tr v-for="emp in employees" :key="emp.id">
+                <td>{{ emp.firstName }} {{ emp.secondName }}</td>
+                <td>{{ emp.login }}</td>
+                <td><button @click="handleDeleteEmployee(emp.id)">Уволить</button></td>
+            </tr>
+        </table>
+    </div>
+
 
 </div>
 

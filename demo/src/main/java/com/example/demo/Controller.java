@@ -17,6 +17,11 @@ public class Controller {
 
     private final Service sr;
 
+//    @GetMapping("/rest-api/4")
+//    public String q(){
+//        return "сосать Америка";
+//    }
+
     // =========================================================================
     // --- ОБЩИЕ ЭНДПОИНТЫ / АВТОРИЗАЦИЯ ---
     // =========================================================================
@@ -156,6 +161,7 @@ public class Controller {
     // --- ЭНДПОИНТЫ АДМИНИСТРАТОРА (ADMIN) ---
     // =========================================================================
 
+    // В Controller.java
     @PostMapping("/rest-api/admin/employees")
     public ResponseEntity<Employee> createEmployee(@RequestBody Employee employee) {
         return ResponseEntity.ok(sr.addEmployee(employee));

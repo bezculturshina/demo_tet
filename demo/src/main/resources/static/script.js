@@ -9,11 +9,17 @@
             const currentTab = ref('main');
             const cart = ref([]);
 
+            const employees = ref([]);
+            const newEmployeeForm = ref({ firstName: '', secondName: '', login: '', password: '' });
+
             const showAuthForms = ref(false);
             const authMessage = ref('');
             const authError = ref('');
 
-            const currentUser = ref({ id: null, role: '', firstName: '', secondName: '' });
+//            const currentUser = ref({ id: null, role: '', firstName: '', secondName: '' });
+            const savedUser = localStorage.getItem('user');
+            const currentUser = ref(savedUser ? JSON.parse(savedUser) : { id: null, role: '', firstName: '', secondName: '' });
+
             const checkoutStatus = ref(null);
 
             const loginForm = ref({ login: '', password: '' });
@@ -78,7 +84,7 @@
             // СОЗДАНИЕ КНИГИ (Employee URL)
             const handleCreateBook = async () => {
                 if (!newBookForm.value.name || !newBookForm.value.author) {
-                    alert("Заполните название и автора книги!");
+//                    alert("Заполните название и автора книги!");
                     return;
                 }
                 try {
@@ -88,8 +94,8 @@
                         body: JSON.stringify(newBookForm.value)
                     });
                     if (response.ok) {
-                        alert("Книга успешно добавлена в базу данных!");
-                        newBookForm.value = { name: '', author: '', genre: '', pages: 200, published: 2026, price: 500, number: 10 };
+//                        alert("Книга успешно добавлена в базу данных!");
+                        newBookForm.value = { name: '', author: '', genre: '', pages: '', published: '', price: '', number: '' };
                         await fetchBooks(); // Перезагружаем ассортимент
                     }
                 } catch (e) { console.error("Ошибка при добавлении книги:", e); }
@@ -97,7 +103,7 @@
 
             // УДАЛЕНИЕ КНИГИ (Employee URL)
             const handleDeleteBook = async (bookId) => {
-                if (!confirm("Вы действительно хотите удалить эту книгу из базы данных?")) return;
+//                if (!confirm("Вы действительно хотите удалить эту книгу из базы данных?")) return;
                 try {
                     const response = await fetch(`http://localhost:8080/rest-api/employee/books/${bookId}`, {
                         method: 'DELETE'
@@ -168,23 +174,51 @@
             };
 
             const handleLogin = async () => {
-                authError.value = ''; authMessage.value = '';
+                authError.value = '';
+                authMessage.value = '';
+
                 try {
                     const response = await fetch('http://localhost:8080/rest-api/auth/login', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify(loginForm.value)
                     });
+
                     const data = await response.json();
+
                     if (response.ok) {
-                        currentUser.value = { id: data.id, role: data.role, firstName: data.firstName, secondName: data.secondName };
-                        authMessage.value = data.message; showAuthForms.value = false;
+
+                        let role = data.role;
+                        if (role && role.startsWith('ROLE_')) {
+                            role = role.replace('ROLE_', '');
+                        }
+
+                        currentUser.value = {
+                            id: data.id,
+                            role: role,
+                            firstName: data.firstName || data.login,
+                            secondName: data.secondName || ''
+                        };
+
+                        localStorage.setItem('user', JSON.stringify(currentUser.value));
+
+                        authMessage.value = data.message;
+                        showAuthForms.value = false;
                         loginForm.value = { login: '', password: '' };
 
-                        if(data.role === 'EMPLOYEE' || data.role === 'ADMIN') { fetchOrders(); }
-                        else if(data.role === 'CUSTOMER') { fetchMyOrders(); }
-                    } else { authError.value = data.message; }
-                } catch (e) { authError.value = "Ошибка сервера"; }
+                        // Загружаем данные в зависимости от роли
+                        if(role === 'EMPLOYEE') {
+                            fetchOrders();
+                        } else if(role === 'CUSTOMER') {
+                            fetchMyOrders();
+                        }
+                    } else {
+                        authError.value = data.message || "Ошибка входа";
+                    }
+                } catch (e) {
+                    authError.value = "Ошибка сервера";
+                    console.error(e);
+                }
             };
 
             const handleRegister = async () => {
@@ -205,11 +239,47 @@
 
             const logout = () => {
                 currentUser.value = { id: null, role: '', firstName: '', secondName: '' };
+
+                localStorage.removeItem('user');
+
                 currentTab.value = 'main'; authMessage.value = ''; authError.value = ''; checkoutStatus.value = null;
                 orders.value = []; myOrders.value = [];
             };
 
             onMounted(() => { fetchBooks(); });
+
+
+            const fetchEmployees = async () => {
+                const res = await fetch('http://localhost:8080/rest-api/admin/employees');
+                employees.value = await res.json();
+
+//                console.log("Попытка загрузки сотрудников...");
+//                try {
+//                    const res = await fetch('http://localhost:8080/rest-api/admin/employees');
+//                    if (!res.ok) throw new Error("Ошибка сервера");
+//                    employees.value = await res.json();
+//                    console.log("Сотрудники загружены:", employees.value);
+//                } catch (e) {
+//                    console.error("Ошибка при получении сотрудников:", e);
+//                }
+
+            };
+
+            const handleCreateEmployee = async () => {
+                await fetch('http://localhost:8080/rest-api/admin/employees', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify(newEmployeeForm.value)
+                });
+                newEmployeeForm.value = { firstName: '', secondName: '', login: '', password: '' };
+                await fetchEmployees();
+            };
+
+            const handleDeleteEmployee = async (id) => {
+                await fetch(`http://localhost:8080/rest-api/admin/employees/${id}`, { method: 'DELETE' });
+                await fetchEmployees();
+            };
+
 
             return {
                 books, orders, myOrders, currentYear, currentTab, cart,
@@ -219,7 +289,8 @@
                 handleCheckout, checkoutStatus, currentUserCartLength,
                 goToEmployeeOrders, goToEmployeeBooks, goToMyOrders, handleCompleteOrder,
                 handleCreateBook, handleDeleteBook, formatDate,
-                handleLogin, handleRegister, newBookForm
+                handleLogin, handleRegister, newBookForm,
+                employees, fetchEmployees, handleCreateEmployee, handleDeleteEmployee, newEmployeeForm
             };
         }
     }).mount('#app');
