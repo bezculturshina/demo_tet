@@ -9,6 +9,10 @@ createApp({
         const currentTab = ref('main');
         const cart = ref([]);
 
+        const bookPage = ref(0);
+        const bookTotalPages = ref(1);
+        const pageSize = ref(10); // количество книг на одну страницу
+
         const employees = ref([]);
         const newEmployeeForm = ref({ firstName: '', secondName: '', login: '', password: '' });
 
@@ -40,12 +44,29 @@ createApp({
         };
 
         // ЗАГРУЗКА КНИГ (Customer URL)
+//        const fetchBooks = async () => {
+//            try {
+//                const response = await fetch('http://localhost:8080/rest-api/customer/books');
+//                const allBooks = await response.json();
+//                // Показываем только те книги, у которых статус не "Удалено"
+//                books.value = allBooks.filter(book => book.status !== 'Удалено');
+//            } catch (error) { console.error("Ошибка при загрузке книг:", error); }
+//        };
         const fetchBooks = async () => {
             try {
-                const response = await fetch('http://localhost:8080/rest-api/customer/books');
-                books.value = await response.json();
-            } catch (error) { console.error("Ошибка при загрузке книг:", error); }
+                const response = await fetch(`http://localhost:8080/rest-api/customer/books?page=${bookPage.value}&size=${pageSize.value}`);
+                const data = await response.json();
+
+                // Так как бэкенд возвращает объект Page, данные берем из content
+                books.value = data.content.filter(book => book.status !== 'Удалено');
+                bookTotalPages.value = data.totalPages;
+            } catch (error) {
+                console.error("Ошибка при загрузке книг:", error);
+            }
         };
+
+        const nextBookPage = () => { if (bookPage.value < bookTotalPages.value - 1) { bookPage.value++; fetchBooks(); } };
+        const prevBookPage = () => { if (bookPage.value > 0) { bookPage.value--; fetchBooks(); } };
 
         // ЗАГРУЗКА ВСЕХ ЗАКАЗОВ (Employee URL)
         const fetchOrders = async () => {
@@ -280,15 +301,73 @@ createApp({
 
         const clients = ref([]);
         const clientFilter = ref('');
+        const clientPage = ref(0);
+        const clientTotalPages = ref(1);
+        const clientPageSize = ref(10);
 
-        const fetchClients = async () => {
-            const url = clientFilter.value
-                ? `http://localhost:8080/rest-api/admin/clients?surname=${clientFilter.value}`
-                : 'http://localhost:8080/rest-api/admin/clients';
-            const res = await fetch(url);
-            clients.value = await res.json();
+//        const fetchClients = async () => {
+//            const searchTrimmed = clientFilter.value ? clientFilter.value.trim() : '';
+//
+//            let url = `http://localhost:8080/rest-api/admin/clients?page=${clientPage.value}&size=${clientPageSize.value}`;
+//            if (searchTrimmed) {
+//                url += `&surname=${encodeURIComponent(searchTrimmed)}`;
+//            }
+//
+//            try {
+//                const res = await fetch(url);
+//                if (res.ok) {
+//                    const data = await res.json();
+//                    // Так как бэкенд теперь возвращает Page, данные берем из content
+//                    clients.value = data.content || [];
+//                    clientTotalPages.value = data.totalPages || 1;
+//                }
+//            } catch (err) {
+//                console.error("Ошибка при загрузке клиентов:", err);
+//            }
+//        };
+const fetchClients = async () => {
+    const searchTrimmed = clientFilter.value ? clientFilter.value.trim() : '';
+
+    let url = `http://localhost:8080/rest-api/admin/clients?page=${clientPage.value}&size=${clientPageSize.value}`;
+    if (searchTrimmed) {
+        url += `&surname=${encodeURIComponent(searchTrimmed)}`;
+    }
+
+    try {
+        const res = await fetch(url);
+        if (res.ok) {
+            const data = await res.json();
+//            console.log("Ответ от бэкенда по клиентам:", data);
+
+            clients.value = data.content || [];
+
+            // Защита: вытаскиваем общее количество страниц из любого возможного поля
+            if (data.totalPages !== undefined) {
+                clientTotalPages.value = Number(data.totalPages);
+            } else if (data.total_pages !== undefined) {
+                clientTotalPages.value = Number(data.total_pages);
+            } else {
+                clientTotalPages.value = 1;
+            }
+
+//            console.log("Записано в Vue clientTotalPages:", clientTotalPages.value);
+        }
+    } catch (err) {
+//        console.error("Ошибка при загрузке клиентов:", err);
+    }
+};
+
+        // Функции переключения страниц
+        const nextClientPage = () => { if (clientPage.value < clientTotalPages.value - 1) { clientPage.value++; fetchClients(); } };
+        const prevClientPage = () => { if (clientPage.value > 0) { clientPage.value--; fetchClients(); } };
+
+
+        const goToAdminClients = () => {
+            currentTab.value = 'admin_clients';
+            clientFilter.value = '';
+            clientPage.value = 0; // Сброс на первую страницу
+            fetchClients();
         };
-
 
         return {
             books, orders, myOrders, currentYear, currentTab, cart,
@@ -300,7 +379,13 @@ createApp({
             handleCreateBook, handleDeleteBook, formatDate,
             handleLogin, handleRegister, newBookForm,
             employees, fetchEmployees, handleCreateEmployee, handleDeleteEmployee, newEmployeeForm,
-            clients, clientFilter, fetchClients
+
+            clients, clientFilter, fetchClients,
+            clientPage, clientTotalPages, clientPageSize,
+            nextClientPage, prevClientPage,
+
+            bookPage, bookTotalPages, nextBookPage, prevBookPage,
+            goToAdminClients
         };
     }
 }).mount('#app');

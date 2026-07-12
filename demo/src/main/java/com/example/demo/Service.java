@@ -6,7 +6,13 @@ import com.example.demo.rep.OrderRep;
 import com.example.demo.rep.Rep;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.PageRequest;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -84,12 +90,27 @@ public class Service {
         return "USER_NOT_FOUND";
     }
 
+    // Пагинация для книг (исключая статус "Удалено", если это заложено в логику)
+    public Page<Book> getBooksPaginated(int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        return rep.findAll(pageable);
+    }
+
+    // Пагинация для клиентов администратора
+    public Page<Clients> getClientsPaginated(String surname, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        if (surname != null && !surname.isEmpty()) {
+            return clientRepository.findBySecondNameContainingIgnoreCaseOrderBySecondNameAsc(surname, pageable);
+        }
+        return clientRepository.findAllByOrderBySecondNameAsc(pageable);
+    }
+
     // =========================================================================
     // --- МЕТОДЫ ПОКУПАТЕЛЯ (CUSTOMER) ---
     // =========================================================================
 
     public String checkoutBooksSafe(List<Long> bookIds, Long clientId) {
-        // 1. Группируем и проверяем остатки "в уме"
+        // Группируем и проверяем остатки
         Map<Long, Long> requestedCounts = bookIds.stream()
                 .collect(Collectors.groupingBy(id -> id, Collectors.counting()));
 
@@ -112,7 +133,7 @@ public class Service {
             }
         }
 
-        // 2. Если проверка успешна — списываем со склада
+        // Если проверка успешна — списываем со склада
         for (Map.Entry<Long, Long> entry : requestedCounts.entrySet()) {
             Long bookId = entry.getKey();
             Long requestedQty = entry.getValue();
@@ -131,7 +152,7 @@ public class Service {
         order.setBooks(booksToOrder);
         order.setStatus("PENDING");
 
-        // Автоматически фиксируем дату заказа (без времени)
+        // Автоматически фиксируем дату заказа
         order.setOrderDate(LocalDate.now());
 
         orderRepository.save(order);
@@ -174,7 +195,7 @@ public class Service {
         return employeeRepository.findByRole("ROLE_EMPLOYEE");
     }
 
-    public List<Clients> getAllClientsSorted() {
-        return clientRepository.findAllByOrderBySecondNameAsc();
+    public Page<Clients> getAllClientsSorted() {
+        return clientRepository.findAllByOrderBySecondNameAsc(org.springframework.data.domain.Pageable.unpaged());
     }
 }

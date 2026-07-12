@@ -3,9 +3,14 @@ package com.example.demo;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.PageRequest;
 
 import java.util.List;
 import java.util.Map;
@@ -79,8 +84,11 @@ public class Controller {
 
     // Получение всех книг для главной страницы покупателя
     @GetMapping("/rest-api/customer/books")
-    public ResponseEntity<Object> getBooks() {
-        return ResponseEntity.ok(sr.getBooks());
+    public ResponseEntity<Page<Book>> getBooks(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        // Если в Service еще нет метода, можно вызвать репозиторий напрямую через PageRequest:
+        return ResponseEntity.ok(sr.getBookRepository().findAll(PageRequest.of(page, size)));
     }
 
     // Оформление заказа покупателем
@@ -149,19 +157,24 @@ public class Controller {
     // Удаление книги из базы данных сотрудником
     @DeleteMapping("/rest-api/employee/books/{id}")
     public ResponseEntity<Map<String, String>> deleteBook(@PathVariable Long id) {
-        if (!sr.getBookRepository().existsById(id)) {
+        var bookOpt = sr.getBookRepository().findById(id);
+        if (bookOpt.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body(Map.of("message", "Ошибка: Книга не найдена в базе данных."));
         }
-        sr.getBookRepository().deleteById(id);
-        return ResponseEntity.ok(Map.of("message", "Книга успешно удалена."));
+
+        Book book = bookOpt.get();
+        book.setStatus("Удалено"); // Смена статуса вместо физического удаления
+        book.setNumber(0);         // Обнуляем на складе, чтобы нельзя было купить
+        sr.getBookRepository().save(book);
+
+        return ResponseEntity.ok(Map.of("message", "Книга успешно переведена в архив."));
     }
 
     // =========================================================================
     // --- ЭНДПОИНТЫ АДМИНИСТРАТОРА (ADMIN) ---
     // =========================================================================
 
-    // В Controller.java
     @PostMapping("/rest-api/admin/employees")
     public ResponseEntity<Employee> createEmployee(@RequestBody Employee employee) {
         return ResponseEntity.ok(sr.addEmployee(employee));
@@ -179,15 +192,18 @@ public class Controller {
     }
 
     @GetMapping("/rest-api/admin/clients")
-    public ResponseEntity<List<Clients>> getClients(@RequestParam(required = false) String surname) {
-        if (surname != null && !surname.isEmpty()) {
-            // Вызов метода с фильтрацией и сортировкой
-            return ResponseEntity.ok(sr.getClientRepository().findBySecondNameContainingIgnoreCaseOrderBySecondNameAsc(surname));
-        }
-        // Вызов метода только с сортировкой
-        return ResponseEntity.ok(sr.getClientRepository().findAllByOrderBySecondNameAsc());
-    }
+    public ResponseEntity<Page<Clients>> getClients(
+            @RequestParam(required = false) String surname,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
 
+        Pageable pageable = PageRequest.of(page, size);
+
+        if (surname != null && !surname.trim().isEmpty()) {
+            return ResponseEntity.ok(sr.getClientRepository().findBySecondNameContainingIgnoreCaseOrderBySecondNameAsc(surname, pageable));
+        }
+        return ResponseEntity.ok(sr.getClientRepository().findAllByOrderBySecondNameAsc(pageable));
+    }
     // =========================================================================
     // --- ВСПОМОГАТЕЛЬНЫЕ КЛАССЫ ---
     // =========================================================================

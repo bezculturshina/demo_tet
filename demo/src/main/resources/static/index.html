@@ -55,7 +55,7 @@
 
         <template v-if="currentUser.role === 'ADMIN'">
             <button @click="currentTab = 'admin_employees'; fetchEmployees()" :class="{active: currentTab === 'admin_employees'}">Сотрудники</button>
-            <button @click="currentTab = 'admin_clients'; fetchClients()" :class="{active: currentTab === 'admin_clients'}">Клиенты</button>
+            <button @click="goToAdminClients()" :class="{active: currentTab === 'admin_clients'}">Клиенты</button>
         </template>
 
         <template v-if="currentUser.role === 'CUSTOMER'">
@@ -94,7 +94,7 @@
                 <td>
                     <span v-if="book.number == 0" class="badge-low">Нет в наличии</span>
                     <span v-if="book.published === currentYear" class="badge-new">Новинка</span>
-                    <span v-if="book.published === currentYear && book.number < 6 && book.number > 0"> / </span>
+                    <span v-if="book.published === currentYear && book.number < 6 && book.number > 0">  </span>
                     <span v-if="book.number < 6 && book.number !== 0" class="badge-mid">Осталось мало</span>
                     <span v-if="book.published !== currentYear && book.number >= 6">{{ book.status }}</span>
                 </td>
@@ -108,6 +108,11 @@
             </tr>
             </tbody>
         </table>
+        <div class="pagination-container" v-if="bookTotalPages > 1" style="margin-top: 15px; text-align: center;">
+            <button @click="prevBookPage" :disabled="bookPage === 0">Назад</button>
+            <span style="margin: 0 15px;">Страница {{ bookPage + 1 }} из {{ bookTotalPages }}</span>
+            <button @click="nextBookPage" :disabled="bookPage >= bookTotalPages - 1">Вперед</button>
+        </div>
     </div>
 
     <div v-if="currentTab === 'cart' && currentUser.role === 'CUSTOMER'">
@@ -286,7 +291,7 @@
 
     <div v-if="currentTab === 'admin_clients' && (currentUser.role === 'ADMIN')">
         <h3>Список клиентов</h3>
-        <input v-model="clientFilter" placeholder="Поиск по фамилии..." @input="fetchClients">
+        <input v-model="clientFilter" placeholder="Поиск по фамилии..." @input="clientPage = 0; fetchClients()">
 
         <table>
             <thead>
@@ -306,12 +311,19 @@
             </tr>
             </tbody>
         </table>
+
+<!--        <p>Страница {{ clientPage }} из {{ clientTotalPages }}</p>-->
+        <div class="pagination-container" v-if="clientTotalPages > 1" style="margin-top: 15px; text-align: center;">
+            <button @click="prevClientPage" :disabled="clientPage === 0">Назад</button>
+            <span style="margin: 0 15px;">Страница {{ clientPage + 1 }} из {{ clientTotalPages }}</span>
+            <button @click="nextClientPage" :disabled="clientPage >= clientTotalPages - 1">Вперед</button>
+        </div>
     </div>
 
 
 </div>
 
-<script src="script.js"> </script>
+<script src="app.js"> </script>
 
 </body>
 </html>
