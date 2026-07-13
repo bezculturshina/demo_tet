@@ -107,77 +107,77 @@ INSERT INTO CLIENTS (first_name, second_name, login, password) VALUES
     ('Денис', 'Богданов', 'denis', '$2a$10$ceObkQ96GHQrAmSb89DPCejVRGuRzIIWW8gw9ZjkP6PqT6u0dEdbO');
 
 
---    INSERT INTO Book(name, author, pages, published, genre, price, number, status)
---        VALUES      ('Мертвые души', 'Николай Гоголь', 352, 2023, 'поэма', 250, 8, '');
---
---    INSERT INTO Book(name, author, pages, published, genre, price, number, status)
---        VALUES      ('Преступление и наказание', 'Федор Достоевский', 600, 2024, 'роман', 399, 12, '');
---
---    INSERT INTO Book(name, author, pages, published, genre, price, number, status)
---        VALUES      ('Идиот', 'Федор Достоевский', 640, 2022, 'роман', 350, 5, '');
---
---    INSERT INTO Book(name, author, pages, published, genre, price, number, status)
---        VALUES      ('Братья Карамазовы', 'Федор Достоевский', 800, 2025, 'роман', 450, 7, '');
---
---    INSERT INTO Book(name, author, pages, published, genre, price, number, status)
---        VALUES      ('Отцы и дети', 'Иван Тургенев', 288, 2021, 'роман', 180, 10, '');
---
---    INSERT INTO Book(name, author, pages, published, genre, price, number, status)
---        VALUES      ('Собачье сердце', 'Михаил Булгаков', 160, 2026, 'повесть', 150, 15, '');
---
---    INSERT INTO Book(name, author, pages, published, genre, price, number, status)
---        VALUES      ('Мастер и Маргарита', 'Михаил Булгаков', 512, 2024, 'роман', 320, 9, '');
---
---    INSERT INTO Book(name, author, pages, published, genre, price, number, status)
---        VALUES      ('Белая гвардия', 'Михаил Булгаков', 320, 2023, 'роман', 240, 4, '');
---
---    INSERT INTO Book(name, author, pages, published, genre, price, number, status)
---        VALUES      ('Война и мир. Том 1', 'Лев Толстой', 384, 2020, 'роман-эпопея', 300, 6, '');
---
---    INSERT INTO Book(name, author, pages, published, genre, price, number, status)
---        VALUES      ('Война и мир. Том 2', 'Лев Толстой', 384, 2020, 'роман-эпопея', 300, 6, '');
---
---    INSERT INTO Book(name, author, pages, published, genre, price, number, status)
---        VALUES      ('Анна Каренина', 'Лев Толстой', 864, 2025, 'роман', 499, 11, '');
---
---    INSERT INTO Book(name, author, pages, published, genre, price, number, status)
---        VALUES      ('Евгений Онегин', 'Александр Пушкин', 224, 2026, 'поэма', 170, 20, '');
---
---    INSERT INTO Book(name, author, pages, published, genre, price, number, status)
---        VALUES      ('Капитанская дочка', 'Александр Пушкин', 160, 2023, 'повесть', 130, 14, '');
---
---    INSERT INTO Book(name, author, pages, published, genre, price, number, status)
---        VALUES      ('Пиковая дама', 'Александр Пушкин', 96, 2022, 'повесть', 99, 8, '');
---
---    INSERT INTO Book(name, author, pages, published, genre, price, number, status)
---        VALUES      ('Двенадцать стульев', 'Илья Ильф, Евгений Петров', 416, 2024, 'сатира', 280, 5, '');
---
---    INSERT INTO Book(name, author, pages, published, genre, price, number, status)
---        VALUES      ('Золотой теленок', 'Илья Ильф, Евгений Петров', 448, 2025, 'сатира', 290, 7, '');
---
---    INSERT INTO Book(name, author, pages, published, genre, price, number, status)
---        VALUES      ('Мы', 'Евгений Замятин', 224, 2021, 'антиутопия', 210, 3, '');
---
---    INSERT INTO Book(name, author, pages, published, genre, price, number, status)
---        VALUES      ('Котлован', 'Андрей Платонов', 160, 2023, 'повесть', 190, 4, '');
---
---    INSERT INTO Book(name, author, pages, published, genre, price, number, status)
---        VALUES      ('Обломов', 'Иван Гончаров', 608, 2022, 'роман', 270, 6, '');
---
---    INSERT INTO Book(name, author, pages, published, genre, price, number, status)
---        VALUES      ('Ревизор', 'Николай Гоголь', 192, 2024, 'комедия', 140, 12, '');
---
---    INSERT INTO Book(name, author, pages, published, genre, price, number, status)
---        VALUES      ('Шинель', 'Николай Гоголь', 80, 2025, 'повесть', 90, 15, '');
---
---    INSERT INTO Book(name, author, pages, published, genre, price, number, status)
---        VALUES      ('Темные аллеи', 'Иван Бунин', 256, 2023, 'рассказы', 220, 9, '');
---
---    INSERT INTO Book(name, author, pages, published, genre, price, number, status)
---        VALUES      ('Гранатовый браслет', 'Александр Куприн', 128, 2024, 'повесть', 130, 11, '');
---
---    INSERT INTO Book(name, author, pages, published, genre, price, number, status)
---        VALUES      ('Олеся', 'Александр Куприн', 96, 2022, 'повесть', 110, 7, '');
---
---    INSERT INTO Book(name, author, pages, published, genre, price, number, status)
---        VALUES      ('Вишневый сад', 'Антон Чехов', 96, 2026, 'пьеса', 120, 18, '');
+    INSERT INTO Book(name, author, pages, published, genre, price, number, status)
+        VALUES      ('Мертвые души', 'Николай Гоголь', 352, 2023, 'поэма', 250, 8, '');
+
+    INSERT INTO Book(name, author, pages, published, genre, price, number, status)
+        VALUES      ('Преступление и наказание', 'Федор Достоевский', 600, 2024, 'роман', 399, 12, '');
+
+    INSERT INTO Book(name, author, pages, published, genre, price, number, status)
+        VALUES      ('Идиот', 'Федор Достоевский', 640, 2022, 'роман', 350, 5, '');
+
+    INSERT INTO Book(name, author, pages, published, genre, price, number, status)
+        VALUES      ('Братья Карамазовы', 'Федор Достоевский', 800, 2025, 'роман', 450, 7, '');
+
+    INSERT INTO Book(name, author, pages, published, genre, price, number, status)
+        VALUES      ('Отцы и дети', 'Иван Тургенев', 288, 2021, 'роман', 180, 10, '');
+
+    INSERT INTO Book(name, author, pages, published, genre, price, number, status)
+        VALUES      ('Собачье сердце', 'Михаил Булгаков', 160, 2026, 'повесть', 150, 15, '');
+
+    INSERT INTO Book(name, author, pages, published, genre, price, number, status)
+        VALUES      ('Мастер и Маргарита', 'Михаил Булгаков', 512, 2024, 'роман', 320, 9, '');
+
+    INSERT INTO Book(name, author, pages, published, genre, price, number, status)
+        VALUES      ('Белая гвардия', 'Михаил Булгаков', 320, 2023, 'роман', 240, 4, '');
+
+    INSERT INTO Book(name, author, pages, published, genre, price, number, status)
+        VALUES      ('Война и мир. Том 1', 'Лев Толстой', 384, 2020, 'роман-эпопея', 300, 6, '');
+
+    INSERT INTO Book(name, author, pages, published, genre, price, number, status)
+        VALUES      ('Война и мир. Том 2', 'Лев Толстой', 384, 2020, 'роман-эпопея', 300, 6, '');
+
+    INSERT INTO Book(name, author, pages, published, genre, price, number, status)
+        VALUES      ('Анна Каренина', 'Лев Толстой', 864, 2025, 'роман', 499, 11, '');
+
+    INSERT INTO Book(name, author, pages, published, genre, price, number, status)
+        VALUES      ('Евгений Онегин', 'Александр Пушкин', 224, 2026, 'поэма', 170, 20, '');
+
+    INSERT INTO Book(name, author, pages, published, genre, price, number, status)
+        VALUES      ('Капитанская дочка', 'Александр Пушкин', 160, 2023, 'повесть', 130, 14, '');
+
+    INSERT INTO Book(name, author, pages, published, genre, price, number, status)
+        VALUES      ('Пиковая дама', 'Александр Пушкин', 96, 2022, 'повесть', 99, 8, '');
+
+    INSERT INTO Book(name, author, pages, published, genre, price, number, status)
+        VALUES      ('Двенадцать стульев', 'Илья Ильф, Евгений Петров', 416, 2024, 'сатира', 280, 5, '');
+
+    INSERT INTO Book(name, author, pages, published, genre, price, number, status)
+        VALUES      ('Золотой теленок', 'Илья Ильф, Евгений Петров', 448, 2025, 'сатира', 290, 7, '');
+
+    INSERT INTO Book(name, author, pages, published, genre, price, number, status)
+        VALUES      ('Мы', 'Евгений Замятин', 224, 2021, 'антиутопия', 210, 3, '');
+
+    INSERT INTO Book(name, author, pages, published, genre, price, number, status)
+        VALUES      ('Котлован', 'Андрей Платонов', 160, 2023, 'повесть', 190, 4, '');
+
+    INSERT INTO Book(name, author, pages, published, genre, price, number, status)
+        VALUES      ('Обломов', 'Иван Гончаров', 608, 2022, 'роман', 270, 6, '');
+
+    INSERT INTO Book(name, author, pages, published, genre, price, number, status)
+        VALUES      ('Ревизор', 'Николай Гоголь', 192, 2024, 'комедия', 140, 12, '');
+
+    INSERT INTO Book(name, author, pages, published, genre, price, number, status)
+        VALUES      ('Шинель', 'Николай Гоголь', 80, 2025, 'повесть', 90, 15, '');
+
+    INSERT INTO Book(name, author, pages, published, genre, price, number, status)
+        VALUES      ('Темные аллеи', 'Иван Бунин', 256, 2023, 'рассказы', 220, 9, '');
+
+    INSERT INTO Book(name, author, pages, published, genre, price, number, status)
+        VALUES      ('Гранатовый браслет', 'Александр Куприн', 128, 2024, 'повесть', 130, 11, '');
+
+    INSERT INTO Book(name, author, pages, published, genre, price, number, status)
+        VALUES      ('Олеся', 'Александр Куприн', 96, 2022, 'повесть', 110, 7, '');
+
+    INSERT INTO Book(name, author, pages, published, genre, price, number, status)
+        VALUES      ('Вишневый сад', 'Антон Чехов', 96, 2026, 'пьеса', 120, 18, '');

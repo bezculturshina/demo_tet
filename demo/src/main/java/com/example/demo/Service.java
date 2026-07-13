@@ -13,6 +13,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -32,7 +33,8 @@ public class Service {
     private final ClientRep clientRepository;
 
     // Объект для хеширования и проверки паролей
-    private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+//    private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+    private final PasswordEncoder passwordEncoder;
 
     // =========================================================================
     // --- СОВМЕСТИМОСТЬ С КОНТРОЛЛЕРОМ ---
@@ -103,6 +105,32 @@ public class Service {
             return clientRepository.findBySecondNameContainingIgnoreCaseOrderBySecondNameAsc(surname, pageable);
         }
         return clientRepository.findAllByOrderBySecondNameAsc(pageable);
+    }
+
+    public Map<String, Object> getAuthResponse(String login) {
+        // Ищем среди сотрудников
+        Optional<Employee> emp = employeeRepository.findByLogin(login);
+        if (emp.isPresent()) {
+            return Map.of(
+                    "login", emp.get().getLogin(),
+                    "role", emp.get().getRole().replace("ROLE_", ""),
+                    "firstName", emp.get().getFirstName(),
+                    "secondName", emp.get().getSecondName()
+            );
+        }
+
+        // Ищем среди клиентов
+        Optional<Clients> client = clientRepository.findByLogin(login);
+        if (client.isPresent()) {
+            return Map.of(
+                    "login", client.get().getLogin(),
+                    "role", "CUSTOMER",
+                    "firstName", client.get().getFirstName(),
+                    "secondName", client.get().getSecondName()
+            );
+        }
+
+        return Map.of(); // Или выбросить исключение
     }
 
     // =========================================================================

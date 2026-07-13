@@ -20,9 +20,38 @@ createApp({
         const authMessage = ref('');
         const authError = ref('');
 
-//            const currentUser = ref({ id: null, role: '', firstName: '', secondName: '' });
-        const savedUser = localStorage.getItem('user');
-        const currentUser = ref(savedUser ? JSON.parse(savedUser) : { id: null, role: '', firstName: '', secondName: '' });
+        // Внутри setup() в app.js:
+
+        const currentUser = ref({ id: null, role: '', firstName: '', secondName: '' });
+
+        const fetchCurrentUser = async () => {
+            try {
+                const res = await fetch('/rest-api/auth/me', {
+                    method: 'GET',
+                    credentials: 'include' // Это критически важно для кук (JSESSIONID)
+                });
+
+                if (res.ok) {
+                    const data = await res.json();
+                    currentUser.value = {
+                        id: data.id || null,
+                        firstName: data.firstName || '',
+                        secondName: data.secondName || '',
+                        role: data.role || '' // Берём напрямую из поля role
+                    };
+//                } else {
+//                    currentUser.value = { id: null, role: '', firstName: '', secondName: '' };
+                }
+            } catch (e) {
+                console.error("Ошибка проверки сессии", e);
+                currentUser.value = { id: null, role: '', firstName: '', secondName: '' };
+            }
+        };
+
+        // Вызывайте fetchCurrentUser при старте
+        onMounted(() => {
+            fetchCurrentUser();
+        });
 
         const checkoutStatus = ref(null);
 
@@ -191,6 +220,54 @@ createApp({
             } catch (e) { checkoutStatus.value = { success: false, text: "Ошибка соединения с сервером." }; }
         };
 
+//        const handleLogin = async () => {
+//            authError.value = '';
+//            authMessage.value = '';
+//
+//            try {
+//                const response = await fetch('http://localhost:8080/rest-api/auth/login', {
+//                    method: 'POST',
+//                    headers: { 'Content-Type': 'application/json' },
+//                    credentials: 'include',
+//                    body: JSON.stringify(loginForm.value)
+//                });
+//
+//                const data = await response.json();
+//
+//                if (response.ok) {
+//
+//                    let role = data.role;
+//                    if (role && role.startsWith('ROLE_')) {
+//                        role = role.replace('ROLE_', '');
+//                    }
+//
+//                    currentUser.value = {
+//                        id: data.id,
+//                        role: role,
+//                        firstName: data.firstName || data.login,
+//                        secondName: data.secondName || ''
+//                    };
+//
+////                    localStorage.setItem('user', JSON.stringify(currentUser.value));
+//
+//                    authMessage.value = data.message;
+//                    showAuthForms.value = false;
+//                    loginForm.value = { login: '', password: '' };
+//
+//                    // Загружаем данные в зависимости от роли
+//                    if(role === 'EMPLOYEE') {
+//                        fetchOrders();
+//                    } else if(role === 'CUSTOMER') {
+//                        fetchMyOrders();
+//                    }
+//                } else {
+//                    authError.value = data.message || "Ошибка входа";
+//                }
+//            } catch (e) {
+//                authError.value = "Ошибка сервера";
+//                console.error(e);
+//            }
+//        };
         const handleLogin = async () => {
             authError.value = '';
             authMessage.value = '';
@@ -199,38 +276,26 @@ createApp({
                 const response = await fetch('http://localhost:8080/rest-api/auth/login', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
+                    credentials: 'include',
                     body: JSON.stringify(loginForm.value)
                 });
 
-                const data = await response.json();
-
                 if (response.ok) {
-
-                    let role = data.role;
-                    if (role && role.startsWith('ROLE_')) {
-                        role = role.replace('ROLE_', '');
-                    }
-
-                    currentUser.value = {
-                        id: data.id,
-                        role: role,
-                        firstName: data.firstName || data.login,
-                        secondName: data.secondName || ''
-                    };
-
-                    localStorage.setItem('user', JSON.stringify(currentUser.value));
-
-                    authMessage.value = data.message;
+                    authMessage.value = "Успешный вход!";
                     showAuthForms.value = false;
                     loginForm.value = { login: '', password: '' };
 
+                    // Перезапрашиваем данные сессии, чтобы обновить currentUser и его роль
+                    await fetchCurrentUser();
+
                     // Загружаем данные в зависимости от роли
-                    if(role === 'EMPLOYEE') {
+                    if (currentUser.value.role === 'EMPLOYEE') {
                         fetchOrders();
-                    } else if(role === 'CUSTOMER') {
+                    } else if (currentUser.value.role === 'CUSTOMER') {
                         fetchMyOrders();
                     }
                 } else {
+                    const data = await response.json();
                     authError.value = data.message || "Ошибка входа";
                 }
             } catch (e) {
@@ -258,7 +323,7 @@ createApp({
         const logout = () => {
             currentUser.value = { id: null, role: '', firstName: '', secondName: '' };
 
-            localStorage.removeItem('user');
+//            localStorage.removeItem('user');
 
             currentTab.value = 'main'; authMessage.value = ''; authError.value = ''; checkoutStatus.value = null;
             orders.value = []; myOrders.value = [];
@@ -369,6 +434,26 @@ const fetchClients = async () => {
             fetchClients();
         };
 
+        const checkAuth = async () => {
+            try {
+                const res = await fetch('/rest-api/auth/me', {
+                    method: 'GET',
+                    credentials: 'include' // Обязательно для передачи куки
+                });
+                if (res.ok) {
+                    currentUser.value = await res.json();
+                } else {
+                    currentUser.value = { id: null, role: '', firstName: '', secondName: '' };
+                }
+            } catch (e) {
+                console.error("Ошибка проверки сессии", e);
+            }
+        };
+
+        onMounted(() => {
+            checkAuth(); // Вызываем при старте
+        });
+
         return {
             books, orders, myOrders, currentYear, currentTab, cart,
             showAuthForms, currentUser, authMessage, authError,
@@ -385,7 +470,8 @@ const fetchClients = async () => {
             nextClientPage, prevClientPage,
 
             bookPage, bookTotalPages, nextBookPage, prevBookPage,
-            goToAdminClients
+            goToAdminClients,
+            checkAuth, fetchCurrentUser
         };
     }
 }).mount('#app');

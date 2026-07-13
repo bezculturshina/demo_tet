@@ -1,5 +1,6 @@
 package com.example.demo;
 
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
@@ -8,10 +9,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.PageRequest;
 
+import java.security.Principal;
 import java.util.List;
 import java.util.Map;
 
@@ -42,40 +43,14 @@ public class Controller {
     }
 
     @PostMapping("/rest-api/auth/login")
-    public ResponseEntity<Map<String, Object>> login(@RequestBody LoginRequest loginRequest) {
-        var clientOpt = sr.getClientRepository().findByLogin(loginRequest.getLogin());
-        if (clientOpt.isPresent()) {
-            Clients c = clientOpt.get();
-            if (sr.getPasswordEncoder().matches(loginRequest.getPassword(), c.getPassword())) {
-                return ResponseEntity.ok(Map.of(
-                        "id", c.getId(),
-                        "role", "CUSTOMER",
-                        "firstName", c.getFirstName(),
-                        "secondName", c.getSecondName(),
-                        "message", "Успешный вход"
-                ));
-            } else {
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("message", "Неверный пароль"));
-            }
+    public ResponseEntity<?> login(@RequestBody LoginRequest loginRequest, HttpServletRequest request) {
+        try {
+            // Spring Security сам вызовет ваш UserDetailsService.loadUserByUsername
+            request.login(loginRequest.getLogin(), loginRequest.getPassword());
+            return ResponseEntity.ok(Map.of("message", "Успешный вход"));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("message", "Неверный логин или пароль"));
         }
-
-        var empOpt = sr.getEmployeeRepository().findByLogin(loginRequest.getLogin());
-        if (empOpt.isPresent()) {
-            Employee e = empOpt.get();
-            if (sr.getPasswordEncoder().matches(loginRequest.getPassword(), e.getPassword())) {
-                return ResponseEntity.ok(Map.of(
-                        "id", e.getId(),
-                        "role", e.getRole().replace("ROLE_", ""),
-                        "firstName", e.getFirstName(),
-                        "secondName", e.getSecondName(),
-                        "message", "Успешный вход"
-                ));
-            } else {
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("message", "Неверный пароль"));
-            }
-        }
-
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("message", "Пользователь не найден"));
     }
 
     // =========================================================================
@@ -213,5 +188,15 @@ public class Controller {
     public static class LoginRequest {
         private String login;
         private String password;
+    }
+
+    @GetMapping("/rest-api/auth/me")
+    public ResponseEntity<?> getCurrentUser(Principal principal) {
+        if (principal == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+        // Теперь вызываем созданный нами метод в Service
+        return ResponseEntity.ok(sr.getAuthResponse(principal.getName()));
     }
 }
